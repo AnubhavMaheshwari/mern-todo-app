@@ -1,8 +1,12 @@
 const express = require("express");
 const { body, param, query, validationResult } = require("express-validator");
 const Todo = require("../models/Todo");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(authMiddleware);
 
 // Validation middleware
 const handleValidationErrors = (req, res, next) => {
@@ -33,7 +37,7 @@ router.get(
   async (req, res) => {
     try {
       const { date, month, startDate, endDate, status, priority } = req.query;
-      let filter = {};
+      let filter = { user: req.user._id };
 
       // Filter by specific date
       if (date) {
@@ -92,15 +96,18 @@ router.get("/stats/:month", async (req, res) => {
     const endOfMonth = new Date(year, parseInt(monthNum), 0, 23, 59, 59);
 
     const totalTodos = await Todo.countDocuments({
+      user: req.user._id,
       createdAt: { $gte: startOfMonth, $lte: endOfMonth }
     });
 
     const completedTodos = await Todo.countDocuments({
+      user: req.user._id,
       createdAt: { $gte: startOfMonth, $lte: endOfMonth },
       completed: true
     });
 
     const overdueTodos = await Todo.countDocuments({
+      user: req.user._id,
       dueDate: { $lt: new Date() },
       completed: false
     });
@@ -154,7 +161,8 @@ router.post(
         title: req.body.title,
         dueDate: req.body.dueDate || null,
         priority: req.body.priority || "medium",
-        category: req.body.category || null
+        category: req.body.category || null,
+        user: req.user._id
       };
 
       const todo = new Todo(todoData);
@@ -178,7 +186,7 @@ router.put(
   ],
   async (req, res) => {
     try {
-      const todo = await Todo.findById(req.params.id);
+      const todo = await Todo.findOne({ _id: req.params.id, user: req.user._id });
 
       if (!todo) {
         return res.status(404).json({
@@ -232,8 +240,8 @@ router.patch(
       if (req.body.priority !== undefined) updates.priority = req.body.priority;
       if (req.body.category !== undefined) updates.category = req.body.category;
 
-      const todo = await Todo.findByIdAndUpdate(
-        req.params.id,
+      const todo = await Todo.findOneAndUpdate(
+        { _id: req.params.id, user: req.user._id },
         updates,
         { new: true, runValidators: true }
       );
@@ -263,7 +271,7 @@ router.delete(
   ],
   async (req, res) => {
     try {
-      const todo = await Todo.findByIdAndDelete(req.params.id);
+      const todo = await Todo.findOneAndDelete({ _id: req.params.id, user: req.user._id });
 
       if (!todo) {
         return res.status(404).json({

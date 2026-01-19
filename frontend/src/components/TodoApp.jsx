@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import Calendar from "./Calendar";
 import DateFilter from "./DateFilter";
 import TodoItem from "./TodoItem";
@@ -8,6 +9,7 @@ import Stats from "./Stats";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function TodoApp() {
+    const { user, logout } = useAuth();
     const [todos, setTodos] = useState([]);
     const [filteredTodos, setFilteredTodos] = useState([]);
     const [title, setTitle] = useState("");
@@ -203,26 +205,35 @@ export default function TodoApp() {
                         <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg flex items-center gap-3">
                             <span className="text-5xl">🎯</span> Goal Tracker
                         </h1>
-                        <p className="text-white/80 mt-1 text-sm font-medium">Stay organized and productive</p>
+                        <p className="text-white/80 mt-1 text-sm font-medium">Welcome back, {user?.name || 'User'}! 👋</p>
                     </div>
-                    <div className="flex gap-2 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20 shadow-xl">
-                        <button
-                            onClick={() => setViewMode('list')}
-                            className={`px-6 py-2.5 rounded-xl font-semibold transition-all text-sm ${viewMode === 'list'
+                    <div className="flex gap-3 items-center flex-wrap">
+                        <div className="flex gap-2 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20 shadow-xl">
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`px-6 py-2.5 rounded-xl font-semibold transition-all text-sm ${viewMode === 'list'
                                     ? 'bg-white text-indigo-600 shadow-lg scale-105'
                                     : 'text-white hover:bg-white/10'
-                                }`}
-                        >
-                            📋 List
-                        </button>
-                        <button
-                            onClick={() => setViewMode('calendar')}
-                            className={`px-6 py-2.5 rounded-xl font-semibold transition-all text-sm ${viewMode === 'calendar'
+                                    }`}
+                            >
+                                📋 List
+                            </button>
+                            <button
+                                onClick={() => setViewMode('calendar')}
+                                className={`px-6 py-2.5 rounded-xl font-semibold transition-all text-sm ${viewMode === 'calendar'
                                     ? 'bg-white text-indigo-600 shadow-lg scale-105'
                                     : 'text-white hover:bg-white/10'
-                                }`}
+                                    }`}
+                            >
+                                📅 Calendar
+                            </button>
+                        </div>
+                        <button
+                            onClick={logout}
+                            className="px-5 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-semibold rounded-2xl border border-white/20 shadow-xl transition-all hover:scale-105"
+                            title="Logout"
                         >
-                            📅 Calendar
+                            🚪 Logout
                         </button>
                     </div>
                 </div>

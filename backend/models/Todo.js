@@ -30,6 +30,11 @@ const todoSchema = new mongoose.Schema({
     trim: true,
     maxlength: [50, "Category cannot exceed 50 characters"],
     default: null
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "User is required"]
   }
 }, {
   timestamps: true

@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const todoRoutes = require("./routes/todoRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -27,6 +28,7 @@ mongoose
   });
 
 // Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/todos", todoRoutes);
 
 // Health check route
