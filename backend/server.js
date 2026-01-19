@@ -54,10 +54,15 @@ app.use((req, res) => {
   res.status(404).json({ error: { message: "Route not found", status: 404 } });
 });
 
-// Start Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`🔗 API URL: http://localhost:${PORT}/api`);
-});
+// Start Server (only in development)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+    console.log(`🔗 API URL: http://localhost:${PORT}/api`);
+  });
+}
+
+// Export for serverless (Vercel)
+module.exports = app;
